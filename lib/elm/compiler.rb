@@ -1,7 +1,6 @@
 require 'elm/compiler/exceptions'
 require 'open3'
 require 'tempfile'
-require 'byebug'
 
 module Elm
   class Compiler
@@ -32,11 +31,14 @@ module Elm
       end
 
       def elm_make(elm_make_path, elm_files, output_path, debug)
-        byebug
-        output_path += ' --debug' if debug
-        byebug
-        Open3.popen3({"LANG" => "en_US.UTF8" }, elm_make_path, *elm_files, '--yes', '--output', output_path) do |_stdin, _stdout, stderr, wait_thr|
-          fail CompileError, stderr.gets(nil) if wait_thr.value.exitstatus != 0
+        if debug
+          Open3.popen3({"LANG" => "en_US.UTF8" }, elm_make_path, *elm_files, '--yes', '--output', output_path, '--debug') do |_stdin, _stdout, stderr, wait_thr|
+            fail CompileError, stderr.gets(nil) if wait_thr.value.exitstatus != 0
+          end
+        else
+          Open3.popen3({"LANG" => "en_US.UTF8" }, elm_make_path, *elm_files, '--yes', '--output', output_path) do |_stdin, _stdout, stderr, wait_thr|
+            fail CompileError, stderr.gets(nil) if wait_thr.value.exitstatus != 0
+          end
         end
       end
     end
