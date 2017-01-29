@@ -31,14 +31,10 @@ module Elm
       end
 
       def elm_make(elm_make_path, elm_files, output_path, debug)
-        if debug
-          Open3.popen3({"LANG" => "en_US.UTF8" }, elm_make_path, *elm_files, '--yes', '--output', output_path, '--debug') do |_stdin, _stdout, stderr, wait_thr|
-            fail CompileError, stderr.gets(nil) if wait_thr.value.exitstatus != 0
-          end
-        else
-          Open3.popen3({"LANG" => "en_US.UTF8" }, elm_make_path, *elm_files, '--yes', '--output', output_path) do |_stdin, _stdout, stderr, wait_thr|
-            fail CompileError, stderr.gets(nil) if wait_thr.value.exitstatus != 0
-          end
+        args = [{"LANG" => "en_US.UTF8" }, elm_make_path, *elm_files, '--yes', '--output', output_path]
+        args << "--debug" if debug
+        Open3.popen3(*args) do |_stdin, _stdout, stderr, wait_thr|
+          fail CompileError, stderr.gets(nil) if wait_thr.value.exitstatus != 0
         end
       end
     end
